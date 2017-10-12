@@ -27,7 +27,9 @@ import static android.os.Environment.getExternalStoragePublicDirectory;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {//SensorEventLestener requires methods onAccuracyChanged, onSensorChanged
-
+    /****
+    views
+    ****/
     TextView accelXview;
     TextView accelYview;
     TextView accelZview;
@@ -37,17 +39,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Button stopButton;
     Button viewButton;
 
-    /*******
+    /**********
      file stuff
-    *******/
-    Boolean save = false;
+    **********/
+    Boolean save = false;//should onSensordChange save sensor values to a file
     File path;//the directory
     File dataFile;//the file that will be saved
     OutputStream fos = null;
 
+    /***********
+    sensor stuff
+    ***********/
     private SensorManager sensManager;
     Sensor myAccel;
 
+    /*****************************************
+    things that happen when the program starts
+    *****************************************/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             Log.w("directory no exist", "directory no exist");
         }
-        //dataTextView.setText("Not Currently Collecting Data");
 
         if(isExternalStorageWritable()){
             dataTextView.setText("storage available");
@@ -121,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 dataTextView.setText(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).toString());
             }
         });
-    }
+    }//end onCeate method
 
     @Override
     public final void onAccuracyChanged(Sensor sensor, int accuracy){
@@ -140,8 +147,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }catch(Exception e){
                 Log.w("problem writing", "problem writing");
             }
-        }
-    }
+        }//end if
+    }//end onSensorChanged method
 
     /* Checks if external storage is available for read and write */
     public boolean isExternalStorageWritable(){
