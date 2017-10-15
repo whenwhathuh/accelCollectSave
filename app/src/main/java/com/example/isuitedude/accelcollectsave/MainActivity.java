@@ -53,6 +53,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensManager;
     Sensor myAccel;
 
+    /***********
+    timing stuff - for adding time since start of data collection in csv
+    ***********/
+    //start time
+    //curr time
+
     /*****************************************
     things that happen when the program starts
     *****************************************/
