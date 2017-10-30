@@ -1,10 +1,13 @@
 package com.example.isuitedude.accelcollectsave;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +23,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.jar.Manifest;
 
@@ -59,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /***********
     timing stuff - for adding time since start of data collection in csv
     ***********/
-    Date startTime = new Date();
+    Date startTime;
     Date currTime;
     Long elapsedTime;
 
@@ -120,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 //File dataFile = new File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "accelData.txt");
                 save = true; //allows onSensorChanged method to save accel data
+                startTime = new Date();
                 //dataFile = new File("data/data/com.example.isuitedude.accelcollectsave/accelData.txt");
 
                 try{
@@ -140,6 +145,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 save = false;
                 try{
                     fos.close();
+                    MediaScannerConnection.scanFile(
+                            getApplicationContext(),
+                            new String[]{dataFile.getAbsolutePath()},
+                            null,
+                            new MediaScannerConnection.OnScanCompletedListener() {
+                                @Override
+                                public void onScanCompleted(String path, Uri uri) {
+                                    Log.w("grokkingandroid",
+                                            "file " + path + " was scanned seccessfully: " + uri);
+                                }
+                            });
                 }catch(Exception e){
                     Log.w("Log: problem closing", "problem closing");
                 }
@@ -161,12 +177,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public final void onSensorChanged(SensorEvent event){
-        currTime = new Date();
-        elapsedTime = currTime.getTime() - startTime.getTime();
         accelXview.setText(String.format("%.2f", event.values[0]));
         accelYview.setText(String.format("%.2f", event.values[1]));
         accelZview.setText(String.format("%.2f", event.values[2]));
         if(save){
+            currTime = new Date();
+            SimpleDateFormat date = new SimpleDateFormat("SSSS");
+            Log.w("startTime", date.format(startTime));
+            Log.w("currTime", date.format(currTime));
+            elapsedTime = currTime.getTime() - startTime.getTime();
+            Log.w("elapsedTime", date.format(elapsedTime));
             StringBuilder str = new StringBuilder(elapsedTime.toString() + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
             try{
                 fos.write(str.toString().getBytes());
@@ -193,4 +213,4 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
 
-}
+}//end MainActivity
