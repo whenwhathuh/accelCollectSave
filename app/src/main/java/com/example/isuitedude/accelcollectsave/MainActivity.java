@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.jar.Manifest;
 
 import static android.os.Environment.DIRECTORY_DCIM;
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Date startTime;
     Date currTime;
     Long elapsedTime;
+    List timeStamps = new ArrayList();
 
     /*****************************************
     things that happen when the program starts
@@ -116,7 +119,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 //        } else {
 //            dataTextView.setText("storage NOT available");
 //        }
-
+        /************
+        start button
+        ************/
         startButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 //put accelerometer data into csv
@@ -138,6 +143,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
+        /************
+        stop button
+        *************/
         stopButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 //close the file
@@ -156,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                             "file " + path + " was scanned seccessfully: " + uri);
                                 }
                             });
+                    Log.w("timeStamps", timeStamps.toString());
                 }catch(Exception e){
                     Log.w("Log: problem closing", "problem closing");
                 }
@@ -186,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Log.w("startTime", date.format(startTime));
             Log.w("currTime", date.format(currTime));
             elapsedTime = currTime.getTime() - startTime.getTime();
+            timeStamps.add(elapsedTime);
             Log.w("elapsedTime", Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)));
             //StringBuilder str = new StringBuilder(elapsedTime.toString() + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
             StringBuilder str = new StringBuilder(Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)) + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
