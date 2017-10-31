@@ -186,8 +186,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Log.w("startTime", date.format(startTime));
             Log.w("currTime", date.format(currTime));
             elapsedTime = currTime.getTime() - startTime.getTime();
-            Log.w("elapsedTime", date.format(elapsedTime));
-            StringBuilder str = new StringBuilder(elapsedTime.toString() + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
+            Log.w("elapsedTime", Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)));
+            //StringBuilder str = new StringBuilder(elapsedTime.toString() + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
+            StringBuilder str = new StringBuilder(Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)) + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
             try{
                 fos.write(str.toString().getBytes());
             }catch(Exception e){
