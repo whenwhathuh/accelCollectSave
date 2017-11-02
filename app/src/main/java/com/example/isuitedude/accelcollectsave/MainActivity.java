@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Button viewButton;
 
     /**********
-     file stuff
+    file stuff
     **********/
     Boolean save = false;//should onSensordChange save sensor values to a file
     File path;//the directory
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Date startTime;
     Date currTime;
     Long elapsedTime;
-    List timeStamps = new ArrayList();
+    List<Float> timeStamps = new ArrayList<>();
 
     /*****************************************
     things that happen when the program starts
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Log.w("startTime", date.format(startTime));
             Log.w("currTime", date.format(currTime));
             elapsedTime = currTime.getTime() - startTime.getTime();
-            timeStamps.add(elapsedTime);
+            timeStamps.add(Float.parseFloat(date.format(elapsedTime)));
             Log.w("elapsedTime", Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)));
             //StringBuilder str = new StringBuilder(elapsedTime.toString() + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
             StringBuilder str = new StringBuilder(Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)) + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
