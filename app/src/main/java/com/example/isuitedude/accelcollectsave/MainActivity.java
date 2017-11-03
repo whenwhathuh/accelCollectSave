@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     long startTime;
     long currTime;
     float elapsedTime;
+    float totalTime;
     List<Float> timeStamps = new ArrayList<>();
 
     /*****************************************
@@ -155,7 +156,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         stopButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 //close the file
-                dataTextView.setText("Stopped Collecting Data");
+                currTime = System.currentTimeMillis();
+                totalTime = (currTime - startTime) * (1/1000f);
+                dataTextView.setText("Stopped Collecting Data\nData collection ran for " + totalTime + " seconds.");
                 save = false;
                 try{
                     fos.close();
