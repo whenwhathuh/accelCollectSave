@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     long currTime;
     float elapsedTime;
     float totalTime;
-    List<Float> timeStamps = new ArrayList<>();
+    //List<Float> timeStamps = new ArrayList<>();
 
     /*****************************************
     things that happen when the program starts
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         if(Build.VERSION.SDK_INT>22){
             requestPermissions(new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-            Log.i("request", "requested permission");
+            //Log.i("request", "requested permission");
         }
 
         accelXview = (TextView) findViewById(R.id.accelXview);
@@ -107,14 +107,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         try{
             dataFile = new File(path, "accelData.txt");//make a new file to be saved
         } catch (Exception e){
-            Log.e("error", "asdf", e);
+            //Log.e("error", "asdf", e);
         }
 
-        if(path.exists()){
+        /*if(path.exists()){
             Log.w("Log: directory exists", "directory exists");
         } else {
             Log.w("Log: directory no exist", "directory no exist");
-        }
+        }*/
 
         //testTimer();
 
@@ -142,9 +142,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 try{
 
                     fos = new FileOutputStream(dataFile);
-                    Log.w("Log: file created", "file created");
+                    //Log.w("Log: file created", "file created");
                 } catch(Exception e){
-                    Log.e("did not create", "could not create file", e);
+                    //Log.e("did not create", "could not create file", e);
                 }
 
             }
@@ -173,9 +173,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                             "file " + path + " was scanned seccessfully: " + uri);
                                 }
                             });
-                    Log.w("timeStamps", timeStamps.toString());
+                    //Log.w("timeStamps", timeStamps.toString());
                 }catch(Exception e){
-                    Log.w("Log: problem closing", "problem closing");
+                    //Log.w("Log: problem closing", "problem closing");
                 }
             }
         });
@@ -210,26 +210,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             //StringBuilder str = new StringBuilder(Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)) + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
             currTime = System.currentTimeMillis();
             elapsedTime = (currTime - startTime) * (1/1000f);
+            /*
             Log.w("startTime", Long.toString(startTime));
             Log.w("currTime", Long.toString(currTime));
             Log.w("elapsedTime", Float.toString(elapsedTime));
+            */
             StringBuilder str = new StringBuilder(elapsedTime + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
             try{
                 fos.write(str.toString().getBytes());
             }catch(Exception e){
-                Log.w("Log: problem writing", "problem writing");
+                //Log.w("Log: problem writing", "problem writing");
             }
         }//end if
     }//end onSensorChanged method
 
     /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable(){
+   /* public boolean isExternalStorageWritable(){
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             return true;
         }
         return false;
-    }
+    }*/
 
     /*void testTimer(){
         for(int i = 0; i < 100000000; i++);
