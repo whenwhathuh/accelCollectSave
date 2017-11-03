@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.FloatProperty;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -65,9 +66,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /***********
     timing stuff - for adding time since start of data collection in csv
     ***********/
-    Date startTime;
+    /*Date startTime;
     Date currTime;
     Long elapsedTime;
+    List<Float> timeStamps = new ArrayList<>();*/
+    long startTime;
+    long currTime;
+    float elapsedTime;
     List<Float> timeStamps = new ArrayList<>();
 
     /*****************************************
@@ -129,7 +134,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 //File dataFile = new File(getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "accelData.txt");
                 save = true; //allows onSensorChanged method to save accel data
-                startTime = new Date();
+                //startTime = new Date();
+                startTime = System.currentTimeMillis();
                 //dataFile = new File("data/data/com.example.isuitedude.accelcollectsave/accelData.txt");
 
                 try{
@@ -190,15 +196,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         accelYview.setText(String.format("%.2f", event.values[1]));
         accelZview.setText(String.format("%.2f", event.values[2]));
         if(save){
-            currTime = new Date();
+            /*currTime = new Date();
             SimpleDateFormat date = new SimpleDateFormat("SSSS");
             Log.w("startTime", date.format(startTime));
             Log.w("currTime", date.format(currTime));
             elapsedTime = currTime.getTime() - startTime.getTime();
-            timeStamps.add(Float.parseFloat(date.format(elapsedTime)));
-            Log.w("elapsedTime", Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)));
+            timeStamps.add(Float.parseFloat(date.format(elapsedTime)));*/
+            //Log.w("elapsedTime", Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)));
             //StringBuilder str = new StringBuilder(elapsedTime.toString() + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            StringBuilder str = new StringBuilder(Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)) + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
+            //StringBuilder str = new StringBuilder(Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)) + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
+            currTime = System.currentTimeMillis();
+            elapsedTime = (currTime - startTime) * (1/1000f);
+            Log.w("startTime", Long.toString(startTime));
+            Log.w("currTime", Long.toString(currTime));
+            Log.w("elapsedTime", Float.toString(elapsedTime));
+            StringBuilder str = new StringBuilder(elapsedTime + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
             try{
                 fos.write(str.toString().getBytes());
             }catch(Exception e){
@@ -216,12 +228,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return false;
     }
 
-    void testTimer(){
+    /*void testTimer(){
         for(int i = 0; i < 100000000; i++);
         currTime = new Date();
         elapsedTime = currTime.getTime() - startTime.getTime();
         dataTextView.setText(elapsedTime.toString());
-    }
+    }*/
 
 
 }//end MainActivity
