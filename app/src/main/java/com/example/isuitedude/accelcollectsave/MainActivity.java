@@ -43,11 +43,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView accelXview;
     TextView accelYview;
     TextView accelZview;
+    TextView gyroXview;
+    TextView gyroYview;
+    TextView gyroZview;
+    TextView pressureView;
+    TextView tempView;
     ScrollView dataView;
     TextView dataTextView;
     Button startButton;
     Button stopButton;
-    Button viewButton;
+    //Button viewButton;
 
     /**********
     file stuff
@@ -62,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ***********/
     private SensorManager sensManager;
     Sensor myAccel;
+    Sensor myGeo;
+    Sensor myBaro;
+    Sensor myTemp;
 
     /***********
     timing stuff - for adding time since start of data collection in csv
@@ -92,16 +100,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         accelXview = (TextView) findViewById(R.id.accelXview);
         accelYview = (TextView) findViewById(R.id.accelYview);
         accelZview = (TextView) findViewById(R.id.accelZview);
+        gyroXview = (TextView) findViewById(R.id.gyroXview);
+        gyroYview = (TextView) findViewById(R.id.gyroYview);
+        gyroZview = (TextView) findViewById(R.id.gyroZview);
+        pressureView = (TextView) findViewById(R.id.pressureView);
+        tempView = (TextView) findViewById(R.id.tempView);
         dataView = (ScrollView) findViewById(R.id.dataView);
         dataTextView = (TextView) findViewById(R.id.dataTextView);
 
         startButton = (Button) findViewById(R.id.startButton);
         stopButton = (Button) findViewById(R.id.stopButton);
-        viewButton = (Button) findViewById(R.id.viewButton);
+        //viewButton = (Button) findViewById(R.id.viewButton);
 
         sensManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         myAccel = sensManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensManager.registerListener(this, myAccel, 100000); //must implement SensorEventListener
+        myGeo = sensManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        myBaro = sensManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        myTemp = sensManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        sensManager.registerListener(this, myAccel, SensorManager.SENSOR_DELAY_NORMAL); //must implement SensorEventListener
+        sensManager.registerListener(this, myGeo, SensorManager.SENSOR_DELAY_NORMAL);
+        sensManager.registerListener(this, myBaro, SensorManager.SENSOR_DELAY_NORMAL);
+        sensManager.registerListener(this, myTemp, SensorManager.SENSOR_DELAY_NORMAL);
 
         path = getExternalStoragePublicDirectory(DIRECTORY_DCIM);
         try{
@@ -180,48 +199,56 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        viewButton.setOnClickListener(new View.OnClickListener(){
+       /* viewButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 //put file in dateTextView
                 dataTextView.setText(getExternalStoragePublicDirectory(DIRECTORY_DCIM).toString());
             }
-        });
+        });*/
     }//end onCeate method
 
     @Override
     public final void onAccuracyChanged(Sensor sensor, int accuracy){
 
     }
-
+    /*************
+    sensor changed
+    **************/
     @Override
     public final void onSensorChanged(SensorEvent event){
-        accelXview.setText(String.format("%.2f", event.values[0]));
-        accelYview.setText(String.format("%.2f", event.values[1]));
-        accelZview.setText(String.format("%.2f", event.values[2]));
-        if(save){
-            /*currTime = new Date();
-            SimpleDateFormat date = new SimpleDateFormat("SSSS");
-            Log.w("startTime", date.format(startTime));
-            Log.w("currTime", date.format(currTime));
-            elapsedTime = currTime.getTime() - startTime.getTime();
-            timeStamps.add(Float.parseFloat(date.format(elapsedTime)));*/
-            //Log.w("elapsedTime", Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)));
-            //StringBuilder str = new StringBuilder(elapsedTime.toString() + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            //StringBuilder str = new StringBuilder(Float.toString(Float.parseFloat(date.format(elapsedTime))*(1/1000f)) + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            currTime = System.currentTimeMillis();
-            elapsedTime = (currTime - startTime) * (1/1000f);
+        Sensor sensor = event.sensor;
+        if(sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+            accelXview.setText(String.format("%.2f", event.values[0]));
+            accelYview.setText(String.format("%.2f", event.values[1]));
+            accelZview.setText(String.format("%.2f", event.values[2]));
+            if(save) {
+                currTime = System.currentTimeMillis();
+                elapsedTime = (currTime - startTime) * (1 / 1000f);
             /*
             Log.w("startTime", Long.toString(startTime));
             Log.w("currTime", Long.toString(currTime));
             Log.w("elapsedTime", Float.toString(elapsedTime));
             */
-            StringBuilder str = new StringBuilder(elapsedTime + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
-            try{
-                fos.write(str.toString().getBytes());
-            }catch(Exception e){
-                //Log.w("Log: problem writing", "problem writing");
+                StringBuilder str = new StringBuilder(elapsedTime + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
+                try {
+                    fos.write(str.toString().getBytes());
+                } catch (Exception e) {
+                    //Log.w("Log: problem writing", "problem writing");
+                }
             }
+        }
+        else if(sensor.getType() == Sensor.TYPE_GYROSCOPE){
+            gyroXview.setText(String.format("%.2f", event.values[0]));
+            gyroYview.setText(String.format("%.2f", event.values[1]));
+            gyroZview.setText(String.format("%.2f", event.values[2]));
+        }
+        else if(sensor.getType() == Sensor.TYPE_PRESSURE){
+            pressureView.setText(Float.toString(event.values[0]));
+        }
+        else if(sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE){
+            tempView.setText(Float.toString(event.values[0]));
         }//end if
+
     }//end onSensorChanged method
 
     /* Checks if external storage is available for read and write */
