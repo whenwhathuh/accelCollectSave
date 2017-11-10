@@ -38,8 +38,8 @@ import static javax.xml.xpath.XPathConstants.STRING;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {//SensorEventLestener requires methods onAccuracyChanged, onSensorChanged
     /****
-    views
-    ****/
+     views
+     ****/
     TextView accelXview;
     TextView accelYview;
     TextView accelZview;
@@ -55,16 +55,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //Button viewButton;
 
     /**********
-    file stuff
-    **********/
+     file stuff
+     **********/
     Boolean save = false;//should onSensordChange save sensor values to a file
     File path;//the directory
-    File dataFile;//the file that will be saved
-    OutputStream fos = null;
+    File accelDataFile;//the file that will be saved
+    File baroDataFile;
+    OutputStream accelFOS = null;
+    OutputStream baroFOS = null;
 
     /***********
-    sensor stuff
-    ***********/
+     sensor stuff
+     ***********/
     private SensorManager sensManager;
     Sensor myAccel;
     Sensor myGeo;
@@ -72,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Sensor myTemp;
 
     /***********
-    timing stuff - for adding time since start of data collection in csv
-    ***********/
+     timing stuff - for adding time since start of data collection in csv
+     ***********/
     /*Date startTime;
     Date currTime;
     Long elapsedTime;
@@ -85,8 +87,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //List<Float> timeStamps = new ArrayList<>();
 
     /*****************************************
-    things that happen when the program starts
-    *****************************************/
+     things that happen when the program starts
+     *****************************************/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,7 +126,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         path = getExternalStoragePublicDirectory(DIRECTORY_DCIM);
         try{
-            dataFile = new File(path, "accelData.txt");//make a new file to be saved
+            accelDataFile = new File(path, "accelData.txt");//make a new file to be saved
+            baroDataFile = new File(path, "baroData.txt");
         } catch (Exception e){
             //Log.e("error", "asdf", e);
         }
@@ -145,8 +148,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 //            dataTextView.setText("storage NOT available");
 //        }
         /************
-        start button
-        ************/
+         start button
+         ************/
         startButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 //put accelerometer data into csv
@@ -160,7 +163,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 try{
 
-                    fos = new FileOutputStream(dataFile);
+                    accelFOS = new FileOutputStream(accelDataFile);
+                    baroFOS = new FileOutputStream(baroDataFile);
                     //Log.w("Log: file created", "file created");
                 } catch(Exception e){
                     //Log.e("did not create", "could not create file", e);
@@ -170,8 +174,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
 
         /************
-        stop button
-        *************/
+         stop button
+         *************/
         stopButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 //close the file
@@ -180,21 +184,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 dataTextView.setText("Stopped Collecting Data\nData collection ran for " + totalTime + " seconds.");
                 save = false;
                 try{
-                    fos.close();
+                    accelFOS.close();
+                    baroFOS.close();
+                    Log.w("closed files", "closed files");
                     MediaScannerConnection.scanFile(
                             getApplicationContext(),
-                            new String[]{dataFile.getAbsolutePath()},
+                            new String[]{accelDataFile.getAbsolutePath(), baroDataFile.getAbsolutePath()},
                             null,
                             new MediaScannerConnection.OnScanCompletedListener() {
                                 @Override
                                 public void onScanCompleted(String path, Uri uri) {
-                                    Log.w("grokkingandroid",
+                                    Log.w("balls",
                                             "file " + path + " was scanned seccessfully: " + uri);
                                 }
                             });
-                    //Log.w("timeStamps", timeStamps.toString());
+                    Log.w("got here", "got here");
                 }catch(Exception e){
-                    //Log.w("Log: problem closing", "problem closing");
+                    Log.w("Log: problem closing", "problem closing");
                 }
             }
         });
@@ -212,8 +218,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
     /*************
-    sensor changed
-    **************/
+     sensor changed
+     **************/
     @Override
     public final void onSensorChanged(SensorEvent event){
         Sensor sensor = event.sensor;
@@ -231,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             */
                 StringBuilder str = new StringBuilder(elapsedTime + "," + event.values[0] + "," + event.values[1] + "," + event.values[2] + "\n");
                 try {
-                    fos.write(str.toString().getBytes());
+                    accelFOS.write(str.toString().getBytes());
                 } catch (Exception e) {
                     //Log.w("Log: problem writing", "problem writing");
                 }
@@ -244,6 +250,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         else if(sensor.getType() == Sensor.TYPE_PRESSURE){
             pressureView.setText(Float.toString(event.values[0]));
+            if(save){
+                StringBuilder str = new StringBuilder(event.values[0] + "\n");
+                try{
+                    baroFOS.write(str.toString().getBytes());
+                } catch (Exception e){}
+            }
         }
         else if(sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE){
             tempView.setText(Float.toString(event.values[0]));
