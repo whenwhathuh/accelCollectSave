@@ -222,13 +222,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      **************/
     @Override
     public final void onSensorChanged(SensorEvent event){
+        currTime = System.currentTimeMillis();
         Sensor sensor = event.sensor;
         if(sensor.getType() == Sensor.TYPE_ACCELEROMETER){
             accelXview.setText(String.format("%.2f", event.values[0]));
             accelYview.setText(String.format("%.2f", event.values[1]));
             accelZview.setText(String.format("%.2f", event.values[2]));
             if(save) {
-                currTime = System.currentTimeMillis();
                 elapsedTime = (currTime - startTime) * (1 / 1000f);
             /*
             Log.w("startTime", Long.toString(startTime));
@@ -251,7 +251,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         else if(sensor.getType() == Sensor.TYPE_PRESSURE){
             pressureView.setText(Float.toString(event.values[0]));
             if(save){
-                StringBuilder str = new StringBuilder(event.values[0] + "\n");
+                elapsedTime = (currTime - startTime) * (1 / 1000f);
+                StringBuilder str = new StringBuilder(elapsedTime + "," + event.values[0] + "\n");
                 try{
                     baroFOS.write(str.toString().getBytes());
                 } catch (Exception e){}
