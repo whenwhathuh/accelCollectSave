@@ -232,25 +232,26 @@
         app:layout_constraintTop_toBottomOf="@+id/pressureTitle" />
 
     <TextView
-        android:id="@+id/tempTitle"
+        android:id="@+id/magTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Temperature"
+        android:text="Magnetometer"
         android:textSize="24sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/pressureView" />
 
     <TextView
-        android:id="@+id/tempView"
+        android:id="@+id/magView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="15dp"
         android:text="000"
         android:textSize="30sp"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tempTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/magTitle" />
 
 </android.support.constraint.ConstraintLayout>

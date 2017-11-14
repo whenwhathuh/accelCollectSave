@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView gyroYview;
     TextView gyroZview;
     TextView pressureView;
-    TextView tempView;
+    TextView magView;
     ScrollView dataView;
     TextView dataTextView;
     Button startButton;
@@ -61,8 +61,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     File path;//the directory
     File accelDataFile;//the file that will be saved
     File baroDataFile;
+    File magDataFile;
     OutputStream accelFOS = null;
     OutputStream baroFOS = null;
+    OutputStream magFOS = null;
 
     /***********
      sensor stuff
@@ -71,7 +73,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Sensor myAccel;
     Sensor myGeo;
     Sensor myBaro;
-    Sensor myTemp;
+    //Sensor myTemp;
+    Sensor myMag;
 
     /***********
      timing stuff - for adding time since start of data collection in csv
@@ -106,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         gyroYview = (TextView) findViewById(R.id.gyroYview);
         gyroZview = (TextView) findViewById(R.id.gyroZview);
         pressureView = (TextView) findViewById(R.id.pressureView);
-        tempView = (TextView) findViewById(R.id.tempView);
+        magView = (TextView) findViewById(R.id.magView);
         dataView = (ScrollView) findViewById(R.id.dataView);
         dataTextView = (TextView) findViewById(R.id.dataTextView);
 
@@ -118,16 +121,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         myAccel = sensManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         myGeo = sensManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         myBaro = sensManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-        myTemp = sensManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        //myTemp = sensManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        myMag = sensManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
         sensManager.registerListener(this, myAccel, SensorManager.SENSOR_DELAY_NORMAL); //must implement SensorEventListener
         sensManager.registerListener(this, myGeo, SensorManager.SENSOR_DELAY_NORMAL);
         sensManager.registerListener(this, myBaro, SensorManager.SENSOR_DELAY_NORMAL);
-        sensManager.registerListener(this, myTemp, SensorManager.SENSOR_DELAY_NORMAL);
+        //sensManager.registerListener(this, myTemp, SensorManager.SENSOR_DELAY_NORMAL);
+        sensManager.registerListener(this, myMag, SensorManager.SENSOR_DELAY_NORMAL);
 
         path = getExternalStoragePublicDirectory(DIRECTORY_DCIM);
         try{
             accelDataFile = new File(path, "accelData.txt");//make a new file to be saved
             baroDataFile = new File(path, "baroData.txt");
+            magDataFile = new File(path, "magData.csv");
         } catch (Exception e){
             //Log.e("error", "asdf", e);
         }
@@ -165,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                     accelFOS = new FileOutputStream(accelDataFile);
                     baroFOS = new FileOutputStream(baroDataFile);
+                    magFOS = new FileOutputStream(magDataFile);
                     //Log.w("Log: file created", "file created");
                 } catch(Exception e){
                     //Log.e("did not create", "could not create file", e);
@@ -186,10 +193,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 try{
                     accelFOS.close();
                     baroFOS.close();
+                    magFOS.close();
                     Log.w("closed files", "closed files");
                     MediaScannerConnection.scanFile(
                             getApplicationContext(),
-                            new String[]{accelDataFile.getAbsolutePath(), baroDataFile.getAbsolutePath()},
+                            new String[]{accelDataFile.getAbsolutePath(), baroDataFile.getAbsolutePath(), magDataFile.getAbsolutePath()},
                             null,
                             new MediaScannerConnection.OnScanCompletedListener() {
                                 @Override
@@ -259,8 +267,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
         else if(sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE){
-            tempView.setText(Float.toString(event.values[0]));
-        }//end if
+            //tempView.setText(Float.toString(event.values[0]));
+        } else if(sensor.getType() == Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR){
+            magView.setText(String.format("%.2f", event.values[0]));
+            if(save){
+                elapsedTime = (currTime - startTime) * (1 / 1000f);
+                StringBuilder str = new StringBuilder(elapsedTime + "," + event.values[0] + "\n");
+                try{
+                    magFOS.write(str.toString().getBytes());
+                } catch (Exception e){}
+            }
+        }//end sensors if
 
     }//end onSensorChanged method
 
